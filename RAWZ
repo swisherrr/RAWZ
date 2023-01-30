@@ -180,15 +180,15 @@ class Game(Frame):
 
         # first, create the room instances so that they can be referenced below
         r1 = Room("Rohan Oil", "RO.png")
-        r2 = Room("Taraq Village", "RO.png")
-        r3 = Room("Al Mazrah City", "RO.png")
-        r4 = Room("Hydroelectric", "RO.png")
-        r5 = Room("Marshlands", "RO.png")
-        r6 = Room("Sa'id City", "RO.png")
-        r7 = Room("Observatory", "RO.png")
-        r8 = Room("Ahkdar Village", "RO.png")
-        r9 = Room("Sarrif Bay", "RO.png")
-        r10 = Room("Airport", "RO.png")
+        r2 = Room("Taraq Village", "TV.png")
+        r3 = Room("Al Mazrah City", "AMC.png")
+        r4 = Room("Hydroelectric", "HE.png")
+        r5 = Room("Marshlands", "ML.png")
+        r6 = Room("Sa'id City", "SC.png")
+        r7 = Room("Observatory", "OBV.png")
+        r8 = Room("Ahkdar Village", "AV.png")
+        r9 = Room("Sarrif Bay", "SB.png")
+        r10 = Room("Airport", "AP.png")
 
         # room 1
         r1.description = "You landed in an oil refinery. Theres are no enemies here."
