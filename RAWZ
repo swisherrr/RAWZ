@@ -11,6 +11,23 @@ from tkinter import *
 VERBS = [ "go", "look", "take" ]                    # the supported vocabulary verbs
 QUIT_COMMANDS = [ "exit", "quit", "bye" ]           # the supported quit commands
 
+# Weapon Levels
+guns_list = {
+    "knife": 1,
+    "p890": 2,
+    "x19": 2,
+    "basp": 3,
+    "m16": 3,
+    "bryson800": 3,
+    "vel46": 4,
+    "fennec45": 4,
+    "kastov74": 4,
+    "lockwood": 5,
+    "m4": 5,
+    "signal50": 6,
+    "airstrike": 7,
+    "mortar_strike": 7
+}
 ###########################################################################################
 # the blueprint for a room
 class Room:
