@@ -1,7 +1,7 @@
 ###########################################################################################
 # Names: Zac Swisher,
 # Date: 1/27
-# Warzone Room ADventure with GUI
+# Warzone Room Adventure with GUI
 ###########################################################################################
 # import libraries
 #from time import sleep
