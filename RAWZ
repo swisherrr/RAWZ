@@ -365,6 +365,33 @@ class Game(Frame):
         # add the words to support
         if (Game.currentRoom != None):
             Game.words = VERBS + QUIT_COMMANDS + Game.inventory + Game.currentRoom.exits + Game.currentRoom.items + Game.currentRoom.grabbables
+        # function that checks weapon levels
+    def check_gun_levels(enemies, player_inventory):
+        # set default highest level guns for enemy and player
+        enemy_highest_level = 0
+        player_highest_level = 0
+        # normalize the decription of each enemy, learned from https://www.programiz.com/python-programming/methods/string/replace 
+        for enemy in enemies:
+            enemy = enemy.replace('.', '').replace(',', '').split()
+            # for each word in description of enemy, check if the word is in the list of guns
+            for word in enemy:
+                if word in guns_list:
+                    # set the level of gun for enemy
+                    if enemy_highest_level < guns_list[word]:
+                        enemy_highest_level = guns_list[word]
+                        # for each item in player's inventory, check if the item is in the list of guns
+        for item in player_inventory:
+            if item in guns_list:
+                # set the level of gun for enemy
+                if player_highest_level < guns_list[item]:
+                    player_highest_level = guns_list[item]
+        # if enemy has higher level of gun, player dies and the game ends
+        if enemy_highest_level > player_highest_level:
+            print("Enemy has a better weapon than you do, he is killing you!")
+            return True
+        # if not, game continues
+        else:
+            return False
 
     # play the game
     def play(self):
