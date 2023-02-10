@@ -8,7 +8,7 @@ from tkinter import *
 
 ###########################################################################################
 # constants
-VERBS = [ "go", "look", "take" ]                    # the supported vocabulary verbs
+VERBS = [ "go", "look", "take", ]                    # the supported vocabulary verbs
 QUIT_COMMANDS = [ "exit", "quit", "bye" ]           # the supported quit commands
 
 # Weapon Levels
@@ -120,7 +120,7 @@ class Room:
         return self._enemies
     
     @enemies.setter
-    def enemies(self,value):
+    def enemies(self, value):
         self._enemies = value
 
     # adds an exit to the room
@@ -144,6 +144,9 @@ class Room:
     def addGrabbable(self, item):
         # append the item to the list
         self._grabbables.append(item)
+        # add enemy function
+    def addEnemy(self, enemy):
+        self._enemies.append(enemy)
 
     # returns a string description of the room as follows:
     #  <name>
@@ -219,7 +222,7 @@ class Game(Frame):
         r2.description = "You entered a small village on the outskirts of the map."
         r2.addExit("west", r1)
         r2.addExit("east", r3)
-       # r2.addEnemy("One enemy armed with a knife")
+        r2.addEnemy("One enemy armed with a knife")
         r2.addItem("locker", "It is filled with old clothes and a basp smg.")
         r2.addGrabbable("basp")
         Game.rooms.append(r2)
@@ -238,7 +241,7 @@ class Game(Frame):
         r4.addExit("north", r1)
         r4.addExit("east", r5)
         r4.addExit("south", r7)
-      #  r4.addEnemy("One enemy armed with a bryson800.")
+        r4.addEnemy("One enemy armed with a bryson800.")
         r4.addItem("safe", "Someone before you blew the safe open but left a m4 assault rifle inside.")
         r4.addGrabbable("m4")
         Game.rooms.append(r4)
@@ -247,7 +250,7 @@ class Game(Frame):
         r5.description = "There isnt much cover. Most of the area is slightly flooded."
         r5.addExit("west", r4)
         r5.addExit("north", r3)
-       # r5.addEnemy("One enemy with a mortar_strike on standby.")
+        r5.addEnemy("One enemy with a mortar_strike on standby.")
         Game.rooms.append(r5)
         
         # room 6
@@ -261,14 +264,14 @@ class Game(Frame):
         r7.addExit("south", r8)
         r7.addExit("west", r6)
         r7.addItem("cabinet", "The cabinet is barren.")
-       ## r7.addEnemy("One enemy armed with a vel46.")
+        r7.addEnemy("One enemy armed with a vel46.")
         Game.rooms.append(r7)
         
         # room 8
         r8.description = "You arrive at a small village at the base of the mountain."
         r8.addExit("south", r9)
         r8.addExit("north", r7)
-       # r8.addEnemy("One enemy armed with a bryson800.")
+        r8.addEnemy("One enemy armed with a bryson800.")
         r8.addItem("counter", "The counter is abnormally clean")
         Game.rooms.append(r8)
         
@@ -280,13 +283,13 @@ class Game(Frame):
         r9.addItem("desk", "there is a signal50 sniper rifle leaning against the desk")
         r9.addGrabbable("signal50")
         r9.addGrabbable("keycard")
-       ## r9.addEnemy("One enemy with a fennec45 smg.")
+       # r9.addEnemy("One enemy with a fennec45 smg.")
         Game.rooms.append(r9)
         
         # room 10
         r10.description = "You arrive at a small abandoned airport."
         r10.addExit("west", r9)
-       # r10.addEnemy("One enemy with a precision airstrike on standby.")
+        r10.addEnemy("One enemy with a precision airstrike on standby.")
         Game.rooms.append(r10)
         
         
@@ -370,7 +373,7 @@ class Game(Frame):
         # set default highest level guns for enemy and player
         enemy_highest_level = 0
         player_highest_level = 0
-        # normalize the decription of each enemy, learned from https://www.programiz.com/python-programming/methods/string/replace 
+        # normalize the decription of each enemy 
         for enemy in enemies:
             enemy = enemy.replace('.', '').replace(',', '').split()
             # for each word in description of enemy, check if the word is in the list of guns
@@ -387,11 +390,9 @@ class Game(Frame):
                     player_highest_level = guns_list[item]
         # if enemy has higher level of gun, player dies and the game ends
         if enemy_highest_level > player_highest_level:
-            print("Enemy has a better weapon than you do, he is killing you!")
-            return True
-        # if not, game continues
-        else:
-            return False
+            #print("Enemy has a better weapon than you do, he is killing you!")
+            Game.currentRoom = None
+
 
     # play the game
     def play(self):
@@ -411,29 +412,30 @@ class Game(Frame):
         # set the user's input to lowercase to make it easier to compare the verb and noun to known values
         action = action.lower().strip()
         #enemies
-        while (True):
+        #while (True):
+        
             # while the player is alive, check if player killed enemy
-            check_if_enemy_killed_player = check_gun_levels(currentRoom.enemies, player_inventory=inventory)
-            if not check_if_enemy_killed_player:
-                #if player killed the enemy, remove the enemy from the room and tell the player that they killed the enemy
-                if len(currentRoom.enemies) != 0:
-                    print("\nYou killed the enemies in", currentRoom.name)
-                    currentRoom.enemies.clear()
+        check_if_enemy_killed_player = Game.check_gun_levels(Game.currentRoom.enemies, player_inventory=Game.inventory)
+        if not check_if_enemy_killed_player:
+            #if player killed the enemy, remove the enemy from the room and tell the player that they killed the enemy
+            if len(Game.currentRoom.enemies) != 0:
+                print("\nYou killed the enemies in", Game.currentRoom.name)
+                Game.currentRoom.enemies.clear()
 
-            # exit the game if the player wants to leave (supports quit, exit, and bye)
-            if (action in QUIT_COMMANDS):
-                exit(0)
+        # exit the game if the player wants to leave (supports quit, exit, and bye)
+        if (action in QUIT_COMMANDS):
+            exit(0)
 
-            # if the current room is None, then the player is dead
-            if (Game.currentRoom == None):
-                # clear the player's input
-                Game.player_input.delete(0, END)
-                return
+        # if the current room is None, then the player is dead
+        if (Game.currentRoom == None):
+            # clear the player's input
+            Game.player_input.delete(0, END)
+            return
             
             # win condition
             if (Game.currentRoom.name == "Sa'id City"):
                 win()
-                break
+                #break
 
         # set a default response
         response = "I don't understand. Try verb noun. Valid verbs\nare {}.".format(", ".join(VERBS))
@@ -484,22 +486,47 @@ class Game(Frame):
                         if (Game.currentRoom.name == "Rohan Oil" and noun == "p890"):
                             item_index = Game.currentRoom.items.index("workbench")
                             Game.currentRoom.itemDescriptions[item_index] = "There is nothing on the workbench."
+                            i = Game.currentRoom.grabbables.index(noun)
+                            # add the grabbable item to the player's inventory
+                            Game.inventory.append(Game.currentRoom.grabbables[i])
+                            # set the response (success)
+                            response = "You take {}.".format(noun)
                             # room 2
                         elif (Game.currentRoom.name == "Taraq Village" and noun == "basp"):
                             item_index = Game.currentRoom.items.index("locker")
                             Game.currentRoom.itemDescriptions[item_index] = "There is old clothes in the locker."
+                            i = Game.currentRoom.grabbables.index(noun)
+                            # add the grabbable item to the player's inventory
+                            Game.inventory.append(Game.currentRoom.grabbables[i])
+                            # set the response (success)
+                            response = "You take {}.".format(noun)
                             # room 3
                         elif (Game.currentRoom.name == "Al Mazrah City" and noun == "vel46"):
                             item_index = Game.currentRoom.items.index("duffle_bag")
                             Game.currentRoom.itemDescriptions[item_index] = "It is empty."
+                            i = Game.currentRoom.grabbables.index(noun)
+                            # add the grabbable item to the player's inventory
+                            Game.inventory.append(Game.currentRoom.grabbables[i])
+                            # set the response (success)
+                            response = "You take {}.".format(noun)
                             # room 4
                         elif (Game.currentRoom.name == "Hydroelectric" and noun == "m4"):
                             item_index = Game.currentRoom.items.index("safe")
                             Game.currentRoom.itemDescriptions[item_index] = "There is nothing else in the safe."
+                            i = Game.currentRoom.grabbables.index(noun)
+                            # add the grabbable item to the player's inventory
+                            Game.inventory.append(Game.currentRoom.grabbables[i])
+                            # set the response (success)
+                            response = "You take {}.".format(noun)
                             # room 9
                         elif (Game.currentRoom.name == "Sarrif Bay" and noun == "keycard"):
                             item_index = Game.currentRoom.items.index("bed")
                             Game.currentRoom.itemDescriptions[item_index] = "You already checked under the bed. Are you scared of monsters?"
+                            i = Game.currentRoom.grabbables.index(noun)
+                            # add the grabbable item to the player's inventory
+                            Game.inventory.append(Game.currentRoom.grabbables[i])
+                            # set the response (success)
+                            response = "You take {}.".format(noun)
                         elif (Game.currentRoom.name == "Sarrif Bay" and noun == "signal50"):
                             item_index = Game.currentRoom.items.index("desk")
                             Game.currentRoom.itemDescriptions[item_index] = "There are only papers on the desk."
