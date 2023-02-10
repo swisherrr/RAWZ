@@ -8,7 +8,7 @@ from tkinter import *
 
 ###########################################################################################
 # constants
-VERBS = [ "go", "look", "take", ]                    # the supported vocabulary verbs
+VERBS = [ "go", "look", "take" ]                    # the supported vocabulary verbs
 QUIT_COMMANDS = [ "exit", "quit", "bye" ]           # the supported quit commands
 
 # Weapon Levels
