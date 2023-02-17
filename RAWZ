@@ -1,14 +1,10 @@
-###########################################################################################
-# Names: Zac Swisher, Luke Talham, Jamil Velez
-# Date: 2022-02-13
-# Description: Warzone 2.0 Adventure with GUI
-###########################################################################################
 # import libraries
 from tkinter import *
-
+from time import sleep
+score = 0 
 ###########################################################################################
 # constants
-VERBS = [ "go", "look", "take" ]                    # the supported vocabulary verbs
+VERBS = [ "go", "look", "take", "attack" ]                    # the supported vocabulary verbs
 QUIT_COMMANDS = [ "exit", "quit", "bye" ]           # the supported quit commands
 
 # Weapon Levels
@@ -175,7 +171,7 @@ class Room:
             s += exit + " "
             
         # next, the enemies in the room
-        s += "Enemies: "
+        s += "\nEnemies: "
         for enemy in self._enemies:
             s += enemy + " "
         s += "\n"
@@ -255,7 +251,7 @@ class Game(Frame):
         
         # room 6
         r6.description = "The city is condensed and requires a keycard to access."
-        r6.addExit("east", r7)
+        #r6.addExit("east", r7)
         Game.rooms.append(r6)
         
         # room 7
@@ -264,7 +260,7 @@ class Game(Frame):
         r7.addExit("south", r8)
         r7.addExit("west", r6)
         r7.addItem("cabinet", "The cabinet is barren.")
-        r7.addEnemy("One enemy armed with a vel46.")
+        r7.addEnemy("One enemy armedth a vel46.")
         Game.rooms.append(r7)
         
         # room 8
@@ -283,7 +279,7 @@ class Game(Frame):
         r9.addItem("desk", "there is a signal50 sniper rifle leaning against the desk")
         r9.addGrabbable("signal50")
         r9.addGrabbable("keycard")
-       # r9.addEnemy("One enemy with a fennec45 smg.")
+        r9.addEnemy("One enemy with a fennec45 smg.")
         Game.rooms.append(r9)
         
         # room 10
@@ -299,7 +295,7 @@ class Game(Frame):
 
         # initialize the player's inventory
         Game.inventory = []
-
+    
     # sets up the GUI
     def setupGUI(self):
         # organize the GUI
@@ -333,7 +329,7 @@ class Game(Frame):
         # the widget is a Tkinter Text
         # disable it by default
         # don't let the widget control the frame's size
-        Game.text = Text(text_frame, bg="lightgray", state=DISABLED)
+        Game.text = Text(text_frame, bg="#72ad0d", state=DISABLED)
         Game.text.pack(fill=Y, expand=1)
         text_frame.pack(side=RIGHT, fill=Y)
         text_frame.pack_propagate(False)
@@ -359,6 +355,11 @@ class Game(Frame):
         if (Game.currentRoom == None):
             # if dead, let the player know
             Game.text.insert(END, "You are dead. The only thing you can do now\nis quit.\n")
+            Game.setRoomImage("dead")
+            Game.player_input.delete(0, END)
+        elif (Game.currentRoom.name == "Sa'id City" and Game.inventory.count("keycard")):
+            Game.text.insert(END, "You won!")
+            Game.text.insert(END, "\nFinal Score: {}/7" .format(score))
         else:
             # otherwise, display the appropriate status
             Game.text.insert(END, "{}\n\n{}\nYou are carrying: {}\n\n".format(status, Game.currentRoom, Game.inventory))
@@ -392,6 +393,10 @@ class Game(Frame):
         if enemy_highest_level > player_highest_level:
             #print("Enemy has a better weapon than you do, he is killing you!")
             Game.currentRoom = None
+            Game.setStatus("dead","dead again")
+
+            
+            
 
 
     # play the game
@@ -403,10 +408,11 @@ class Game(Frame):
         # set the current room
         self.setRoomImage()
         # set the initial status
-        self.setStatus("WELCOME TO ROOM ADVENTURE!")
-
+        self.setStatus("WELCOME TO ROOM ADVENTURE WARZONE!")
+  
     # processes the player's input
     def process(self, event):
+        global score
         # grab the player's input from the input at the bottom of the GUI
         action = Game.player_input.get()
         # set the user's input to lowercase to make it easier to compare the verb and noun to known values
@@ -415,12 +421,12 @@ class Game(Frame):
         #while (True):
         
             # while the player is alive, check if player killed enemy
-        check_if_enemy_killed_player = Game.check_gun_levels(Game.currentRoom.enemies, player_inventory=Game.inventory)
-        if not check_if_enemy_killed_player:
+        #check_if_enemy_killed_player = Game.check_gun_levels(Game.currentRoom.enemies, player_inventory=Game.inventory)
+        #if not check_if_enemy_killed_player:
             #if player killed the enemy, remove the enemy from the room and tell the player that they killed the enemy
-            if len(Game.currentRoom.enemies) != 0:
-                print("\nYou killed the enemies in", Game.currentRoom.name)
-                Game.currentRoom.enemies.clear()
+            #if len(Game.currentRoom.enemies) != 0:
+                #print("\nYou killed the enemies in", Game.currentRoom.name)
+                #Game.currentRoom.enemies.clear()
 
         # exit the game if the player wants to leave (supports quit, exit, and bye)
         if (action in QUIT_COMMANDS):
@@ -432,10 +438,8 @@ class Game(Frame):
             Game.player_input.delete(0, END)
             return
             
-            # win condition
-            if (Game.currentRoom.name == "Sa'id City"):
-                win()
-                #break
+
+            #break
 
         # set a default response
         response = "I don't understand. Try verb noun. Valid verbs\nare {}.".format(", ".join(VERBS))
@@ -454,15 +458,18 @@ class Game(Frame):
                 if (verb == "go"):
                     # set a default response
                     response = "You can't go in that direction."
-
                     # check if the noun is a valid exit
                     if (noun in Game.currentRoom.exits):
-                        # get its index
-                        i = Game.currentRoom.exits.index(noun)
-                        # change the current room to the one that is associated with the specified exit
-                        Game.currentRoom = Game.currentRoom.exitLocations[i]
-                        # set the response (success)
-                        response = "You walk {} and enter another room.".format(noun)
+                        if(Game.currentRoom.name == "Observatory" and noun == "west" and not "keycard" in Game.inventory):
+                            response = "You cannot access this room without a keycard."
+
+                        else:
+                            # get its index
+                            i = Game.currentRoom.exits.index(noun)
+                            # change the current room to the one that is associated with the specified exit
+                            Game.currentRoom = Game.currentRoom.exitLocations[i]
+                            # set the response (success)
+                            response = "You walk {} and enter another room.".format(noun)
                 # the verb is: look
                 elif (verb == "look"):
                     # set a default response
@@ -474,6 +481,20 @@ class Game(Frame):
                         i = Game.currentRoom.items.index(noun)
                         # set the response to the item's description
                         response = Game.currentRoom.itemDescriptions[i]
+                elif (verb == "attack"):
+                    response = "There is nothing to attack."
+                    if Game.currentRoom.enemies:
+                        check_if_enemy_killed_player = Game.check_gun_levels(Game.currentRoom.enemies, player_inventory=Game.inventory)
+                        if not check_if_enemy_killed_player:
+                            #if player killed the enemy, remove the enemy from the room and tell the player that they killed the enemy
+                            if len(Game.currentRoom.enemies) != 0:
+                                response = "you killed the enemies"
+                                Game.currentRoom.enemies.clear()
+                                # add 1 point for each enemy killed
+                                score += 1
+                                
+                                response = "You killed the enemies. Score: {}" .format(score)
+                                
                 # the verb is: take
                 elif (verb == "take"):
                     # set a default response
@@ -544,6 +565,7 @@ class Game(Frame):
         self.setRoomImage()
         Game.player_input.delete(0, END)
 
+
     # implements tab completion in the Entry widget
     def complete(self, event):
         # get user input and the last word of input
@@ -596,7 +618,7 @@ HEIGHT = 600
 
 # create the window
 window = Tk()
-window.title("Room Adventure")
+window.title("Room Adventure Warzone")
 
 # create the GUI as a Tkinter canvas inside the window
 g = Game(window)
@@ -605,5 +627,3 @@ g.play()
 
 # wait for the window to close
 window.mainloop()
-
-
